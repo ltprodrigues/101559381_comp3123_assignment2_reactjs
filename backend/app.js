@@ -1,12 +1,14 @@
 const express = require('express');
+const cors = require('cors');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
-const userRoutes = require('./routes/userRoutes');
-const errorHandler = require('./middleware/errorHandler');
-const employeeRoutes = require('./routes/employeeRoutes');
 const morgan = require('morgan');
+
+const userRoutes = require('./routes/userRoutes');
+const employeeRoutes = require('./routes/employeeRoutes');
+const errorHandler = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
-const connectDB = require('./config/db')
+const connectDB = require('./config/db');
 
 const app = express();
 
@@ -24,20 +26,26 @@ app.use(morgan(
 ));
 
 app.use(helmet());
+
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
-app.use(async(request, response, next) => {
-    try{
+app.use(async (request, response, next) => {
+    try {
         await connectDB();
         next();
-    } catch (error){
+    } catch (error) {
         next(error);
-
     }
-})
+});
 
-app.get('/health', (req, res) => {
-    res.status(200).json({
+app.get('/health', (request, response) => {
+    response.status(200).json({
         status: 'ok',
         message: 'API is running',
         database: mongoose.connection.readyState === 1
@@ -46,10 +54,10 @@ app.get('/health', (req, res) => {
     });
 });
 
-app.use('/api/v1/user', userRoutes)
+app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/emp', employeeRoutes);
 
-app.use((request, response) =>{
+app.use((request, response) => {
     response.status(404).json({
         status: 'error',
         message: 'Route not found'
