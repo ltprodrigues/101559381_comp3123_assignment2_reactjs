@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+
+# Vercel configuration
+.vercel/
+
+# Generated logs
+*.log
+backend/logs/*
+!backend/logs/.gitkeep
+
+# Uploaded employee pictures
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Operating system files
+.DS_Store
+Thumbs.db
