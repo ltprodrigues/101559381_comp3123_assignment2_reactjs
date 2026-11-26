@@ -3,7 +3,7 @@ import { createContext, useEffect, useState } from 'react';
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [token, setToken ] = useState(
+    const [token, setToken] = useState(
         () => localStorage.getItem('token')
     );
 
@@ -19,15 +19,24 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const handleStorage = (event) => {
-        if (event.key === 'token' || event.key === null) {
+            if (event.key === 'token' || event.key === null) {
                 setToken(localStorage.getItem('token'));
             }
         };
 
+        const handleSessionExpired = () => {
+            setToken(null);
+        };
+
         window.addEventListener('storage', handleStorage);
+        window.addEventListener('session-expired', handleSessionExpired);
 
         return () => {
             window.removeEventListener('storage', handleStorage);
+            window.removeEventListener(
+                'session-expired',
+                handleSessionExpired
+            );
         };
     }, []);
 

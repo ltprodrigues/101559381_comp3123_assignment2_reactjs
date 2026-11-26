@@ -14,4 +14,19 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const isProtectedRequest =
+            error.config?.url?.startsWith('/emp/');
+
+        if (error.response?.status === 401 && isProtectedRequest) {
+            localStorage.removeItem('token');
+            window.dispatchEvent(new Event('session-expired'));
+        }
+
+        return Promise.reject(error);
+    }
+);
+
 export default api;
