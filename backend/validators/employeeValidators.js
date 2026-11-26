@@ -64,8 +64,48 @@ const deleteEmployeeIdValidator = [
         .withMessage('Employee ID must be a valid MongoDB ObjectId')
 ];
 
+const searchEmployeeValidators = [
+    query('department')
+        .optional()
+        .isString()
+        .withMessage('Department must be a string')
+        .bail()
+        .trim()
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Department must contain between 1 and 100 characters'),
+
+    query('position')
+        .optional()
+        .isString()
+        .withMessage('Position must be a string')
+        .bail()
+        .trim()
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Position must contain between 1 and 100 characters'),
+
+    query().custom((value) => {
+        const allowedFields = ['department', 'position'];
+
+        if (Object.keys(value).some(
+            (field) => !allowedFields.includes(field)
+        )) {
+            throw new Error('Only department and position are allowed');
+        }
+
+        if (
+            value.department === undefined &&
+            value.position === undefined
+        ) {
+            throw new Error('Provide a department or position to search');
+        }
+
+        return true;
+    })
+];
+
 module.exports = {
     employeeValidators,
     employeeIdValidator,
-    deleteEmployeeIdValidator
+    deleteEmployeeIdValidator,
+    searchEmployeeValidators
 };

@@ -4,19 +4,28 @@ const validateRequest = require('../middleware/validateRequest');
 const {
     employeeValidators,
     employeeIdValidator,
-    deleteEmployeeIdValidator
+    deleteEmployeeIdValidator,
+    searchEmployeeValidators
 } = require('../validators/employeeValidators');
 const {
     createEmployee,
     getEmployees, 
     getEmployeeById,
     updateEmployee,
-    deleteEmployee
+    deleteEmployee,
+    searchEmployees
 } = require('../controllers/employeeController');
 
 const router = express.Router();
 
 router.use(authenticate);
+
+router.get(
+    '/employees/search',
+    searchEmployeeValidators,
+    validateRequest,
+    searchEmployees
+);
 
 router.get('/employees', getEmployees);
 

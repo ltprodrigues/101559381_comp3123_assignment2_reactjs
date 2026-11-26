@@ -176,4 +176,48 @@ const deleteEmployee = async (request, response, next) => {
     }
 };
 
-module.exports = { createEmployee, getEmployees, getEmployeeById, updateEmployee, deleteEmployee };
+const searchEmployees = async (request, response, next) => {
+    try {
+        const { department, position } = request.query;
+
+        const escapeRegex = (value) =>
+            value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        const filter = {
+            user: request.user._id
+        };
+
+        if (department !== undefined) {
+            filter.department = {
+                $regex: escapeRegex(department),
+                $options: 'i'
+            };
+        }
+
+        if (position !== undefined) {
+            filter.position = {
+                $regex: escapeRegex(position),
+                $options: 'i'
+            };
+        }
+
+        const employees = await Employee.find(filter);
+
+        return response.status(200).json({
+            status: 'success',
+            count: employees.length,
+            employees
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { 
+    createEmployee, 
+    getEmployees, 
+    getEmployeeById, 
+    updateEmployee, 
+    deleteEmployee,
+    searchEmployees 
+};
